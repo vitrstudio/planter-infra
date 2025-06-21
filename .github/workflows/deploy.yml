@@ -24,15 +24,15 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ./planter-infra
+        working-directory: .
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
-        working-directory: ./planter-infra
+        working-directory: .
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
-        working-directory: ./planter-infra
+        working-directory: .
 
       - name: Extract Outputs
         id: tfoutput
@@ -41,7 +41,7 @@ jobs:
           echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT
           echo "cloudfront_url=$(terraform output -raw cloudfront_distribution_url)" >> $GITHUB_OUTPUT
           echo "rds_endpoint=$(terraform output -raw rds_endpoint)" >> $GITHUB_OUTPUT
-        working-directory: ./planter-infra
+        working-directory: .
 
       - name: Save Outputs as Repo Secrets
         uses: gliech/create-github-secret-action@v1
