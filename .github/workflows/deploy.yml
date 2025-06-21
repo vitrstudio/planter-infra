@@ -11,8 +11,13 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
-      PLANTER_USER: jordivilagut
-      PLANTER_PROJECT: planter
+      GITHUB_USER: jordivilagut
+      PROJECT_ID: a9191e2a
+      PROJECT_NAME: planter
+      AMI_ID: ami-0953476d60561c955
+      DB_NAME: planter-db
+      DB_USERNAME: planteradmin
+      PLANTER_DB_PASSWORD: ${{ secrets.PLANTER_DB_PASSWORD }}
 
     steps:
       - name: Checkout repo
@@ -27,13 +32,20 @@ jobs:
         run: |
           terraform init \
             -backend-config="bucket=codefarm-terraform-states" \
-            -backend-config="key=users/${PLANTER_USER}/${PLANTER_PROJECT}/terraform.tfstate" \
-            -backend-config="region=us-east-1" \
+            -backend-config="key=users/${GITHUB_USER}/${PROJECT_NAME}/terraform.tfstate" \
+            -backend-config="region=${AWS_DEFAULT_REGION}" \
             -backend-config="encrypt=true"
         working-directory: .
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -out=tfplan \
+          -var="region=${AWS_DEFAULT_REGION}" \
+          -var="project_id=${PROJECT_ID}" \
+          -var="project_name=${PROJECT_NAME}" \
+          -var="ami_id=${AMI_ID}" \
+          -var="db_name=${DB_NAME}" \
+          -var="db_user=${DB_USERNAME}" \
+          -var="db_password=${PLANTER_DB_PASSWORD}"
         working-directory: .
 
       - name: Terraform Apply
