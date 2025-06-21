@@ -1,11 +1,11 @@
 module "vpc" {
-  source       = "modules/vpc"
+  source       = "./modules/vpc"
   project_name = var.project_name
   azs    = ["${var.region}a", "${var.region}b"]
 }
 
 module "nacl" {
-  source             = "modules/nacl"
+  source             = "./modules/nacl"
   project_name       = var.project_name
   vpc_id             = module.vpc.vpc_id
   public_subnet_id   = module.vpc.public_subnet_id
@@ -21,7 +21,7 @@ module "nacl" {
 #}
 
 module "ec2" {
-  source       = "modules/ec2"
+  source       = "./modules/ec2"
   project_name = var.project_name
   vpc_id       = module.vpc.vpc_id
   subnet_id    = module.vpc.public_subnet_id
@@ -30,13 +30,13 @@ module "ec2" {
 }
 
 module "s3" {
-  source       = "modules/s3"
+  source       = "./modules/s3"
   project_id   = var.project_id
   project_name = var.project_name
 }
 
 module "rds" {
-  source             = "modules/rds"
+  source             = "./modules/rds"
   project_id         = var.project_id
   project_name       = var.project_name
   vpc_id             = module.vpc.vpc_id
