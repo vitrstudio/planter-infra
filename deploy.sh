@@ -1,7 +1,8 @@
 #!/bin/bash
 
-export "$(grep -v '^#' .env | xargs)"
-set -e
+set -a
+source .env
+set +a
 
 terraform init \
   -backend-config="bucket=codefarm-terraform-states" \

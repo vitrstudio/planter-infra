@@ -1,17 +1,15 @@
 #!/bin/bash
 
-# Load environment variables
-export "$(grep -v '^#' .env | xargs)"
-set -e
+set -a
+source .env
+set +a
 
-# Init backend with same key (important for destroy)
 terraform init \
   -backend-config="bucket=codefarm-terraform-states" \
   -backend-config="key=users/${GITHUB_USER}/${PROJECT_NAME}/terraform.tfstate" \
   -backend-config="region=${AWS_REGION}" \
   -backend-config="encrypt=true"
 
-# Destroy infrastructure
 terraform destroy -auto-approve \
   -var="region=${AWS_REGION}" \
   -var="project_id=${PROJECT_ID}" \

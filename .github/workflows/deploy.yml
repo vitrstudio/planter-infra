@@ -15,7 +15,7 @@ jobs:
       PROJECT_ID: a9191e2a
       PROJECT_NAME: planter
       AMI_ID: ami-0953476d60561c955
-      DB_NAME: planter-db
+      DB_NAME: planterdb
       DB_USERNAME: planteradmin
       PLANTER_DB_PASSWORD: ${{ secrets.PLANTER_DB_PASSWORD }}
 
