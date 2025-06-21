@@ -62,31 +62,11 @@ jobs:
           echo "rds_endpoint=$(terraform output -raw rds_endpoint)" >> $GITHUB_OUTPUT
         working-directory: .
 
-      - name: Save EC2 IP as Secret
-        uses: gliech/create-github-secret-action@v1
-        with:
-          name: PLANTER_EC2_PUBLIC_IP
-          value: ${{ steps.tfoutput.outputs.ec2_public_ip }}
-          pa_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Save S3 Bucket as Secret
-        uses: gliech/create-github-secret-action@v1
-        with:
-          name: PLANTER_S3_BUCKET
-          value: ${{ steps.tfoutput.outputs.s3_bucket }}
-          pa_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Save CloudFront URL as Secret
-        uses: gliech/create-github-secret-action@v1
-        with:
-          name: PLANTER_CLOUDFRONT_URL
-          value: ${{ steps.tfoutput.outputs.cloudfront_url }}
-          pa_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Save RDS Endpoint as Secret
-        uses: gliech/create-github-secret-action@v1
-        with:
-          name: PLANTER_RDS_ENDPOINT
-          value: ${{ steps.tfoutput.outputs.rds_endpoint }}
-          pa_token: ${{ secrets.GITHUB_TOKEN }}
+      # todo - Instead of secrets, save as vars
+      - name: Output values to copy
+        run: |
+          echo "EC2 IP: $(terraform output -raw ec2_public_ip)"
+          echo "S3 Bucket: $(terraform output -raw s3_bucket)"
+          echo "CloudFront URL: $(terraform output -raw cloudfront_distribution_url)"
+          echo "RDS Endpoint: $(terraform output -raw rds_endpoint)"
 
