@@ -14,10 +14,10 @@ jobs:
       GITHUB_USER: jordivilagut
       PROJECT_ID: a9191e2a
       PROJECT_NAME: planter
-      AMI_ID: ami-0953476d60561c955
+      AMI_ID: ami-01f3a9a49e4032afb
       DB_NAME: planterdb
       DB_USERNAME: planteradmin
-      PLANTER_DB_PASSWORD: ${{ secrets.PLANTER_DB_PASSWORD }}
+      DB_PASSWORD: ${{ secrets.PLANTER_DB_PASSWORD }}
 
     steps:
       - name: Checkout repo
@@ -46,7 +46,7 @@ jobs:
             -var="ami_id=${AMI_ID}" \
             -var="db_name=${DB_NAME}" \
             -var="db_user=${DB_USERNAME}" \
-            -var="db_password=${PLANTER_DB_PASSWORD}"
+            -var="db_password=${DB_PASSWORD}"
         working-directory: .
 
       - name: Terraform Apply

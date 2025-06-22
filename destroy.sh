@@ -17,4 +17,4 @@ terraform destroy -auto-approve \
   -var="ami_id=${AMI_ID}" \
   -var="db_name=${DB_NAME}" \
   -var="db_user=${DB_USERNAME}" \
-  -var="db_password=${PLANTER_DB_PASSWORD}"
+  -var="db_password=${DB_PASSWORD}"
