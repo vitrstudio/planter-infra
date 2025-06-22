@@ -62,11 +62,26 @@ jobs:
           echo "rds_endpoint=$(terraform output -raw rds_endpoint)" >> $GITHUB_OUTPUT
         working-directory: .
 
-      # todo - Instead of secrets, save as vars
       - name: Output values to copy
         run: |
           echo "EC2 IP: $(terraform output -raw ec2_public_ip)"
           echo "S3 Bucket: $(terraform output -raw s3_bucket)"
           echo "CloudFront URL: $(terraform output -raw cloudfront_distribution_url)"
           echo "RDS Endpoint: $(terraform output -raw rds_endpoint)"
+
+      - name: Store EC2 IP and RDS Endpoint in AWS Secrets Manager
+        run: |
+          aws secretsmanager create-secret \
+            --name planter/ec2_public_ip \
+            --secret-string "${{ steps.tfoutput.outputs.ec2_public_ip }}" \
+            || aws secretsmanager update-secret \
+            --secret-id planter/ec2_public_ip \
+            --secret-string "${{ steps.tfoutput.outputs.ec2_public_ip }}"
+
+          aws secretsmanager create-secret \
+            --name planter/rds_endpoint \
+            --secret-string "${{ steps.tfoutput.outputs.rds_endpoint }}" \
+            || aws secretsmanager update-secret \
+            --secret-id planter/rds_endpoint \
+            --secret-string "${{ steps.tfoutput.outputs.rds_endpoint }}"
 
