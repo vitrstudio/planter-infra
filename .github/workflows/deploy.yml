@@ -14,7 +14,7 @@ jobs:
       GITHUB_USER: jordivilagut
       PROJECT_ID: a9191e2a
       PROJECT_NAME: planter
-      AMI_ID: ami-01f3a9a49e4032afb
+      AMI_ID: ami-0964cf532678dde1f
       DB_NAME: planterdb
       DB_USERNAME: planteradmin
       DB_PASSWORD: ${{ secrets.PLANTER_DB_PASSWORD }}
