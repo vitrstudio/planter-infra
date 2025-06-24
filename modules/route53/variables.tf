@@ -17,8 +17,3 @@ variable "root_cloudfront_domain" {
   type        = string
   description = "Cloudfront domain for root domain"
 }
-
-variable "www_cloudfront_domain" {
-  type        = string
-  description = "Cloudfront domain for www subdomain"
-}

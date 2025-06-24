@@ -18,7 +18,6 @@ terraform destroy -auto-approve \
   -target=module.rds \
   -target=module.route53 \
   -target=module.acm \
-  -target=module.redirect \
   -var="region=${AWS_REGION}" \
   -var="project_id=${PROJECT_ID}" \
   -var="project_name=${PROJECT_NAME}" \

@@ -33,13 +33,6 @@ module "s3" {
   certificate_arn = module.acm.certificate_arn
 }
 
-module "redirect" {
-  source          = "./modules/redirect"
-  domain_name     = var.domain_name
-  certificate_arn = module.acm.certificate_arn
-  project_name    = var.project_name
-}
-
 module "cloudfront" {
   source            = "./modules/cloudfront"
   project_name      = var.project_name
@@ -55,7 +48,6 @@ module "route53" {
   project_name            = var.project_name
   domain_name             = var.domain_name
   root_cloudfront_domain  = module.cloudfront.cloudfront_domain
-  www_cloudfront_domain   = module.redirect.redirect_domain
   zone_id                 = module.hosted_zone.zone_id
 }
 
