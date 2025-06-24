@@ -18,12 +18,12 @@ module "acm" {
   zone_id     = module.hosted_zone.zone_id
 }
 
-module "cloudfront" {
-  source           = "./modules/cloudfront"
-  project_name     = var.project_name
-  domain_name      = var.domain_name
-  certificate_arn  = module.acm.certificate_arn
-  api_origin_domain = "your-ec2-public-dns-or-elastic-ip"
+module "ec2" {
+  source       = "./modules/ec2"
+  project_name = var.project_name
+  vpc_id       = module.vpc.vpc_id
+  subnet_id    = module.vpc.public_subnet_id
+  ami_id       = var.ami_id
 }
 
 module "s3" {
@@ -40,6 +40,14 @@ module "redirect" {
   project_name    = var.project_name
 }
 
+module "cloudfront" {
+  source           = "./modules/cloudfront"
+  project_name     = var.project_name
+  domain_name      = var.domain_name
+  certificate_arn  = module.acm.certificate_arn
+  api_origin_domain = module.ec2.public_dns
+}
+
 module "route53" {
   source                  = "./modules/route53"
   project_name            = var.project_name
@@ -47,14 +55,6 @@ module "route53" {
   root_cloudfront_domain  = module.cloudfront.cloudfront_domain
   www_cloudfront_domain   = module.redirect.redirect_domain
   zone_id                 = module.hosted_zone.zone_id
-}
-
-module "ec2" {
-  source       = "./modules/ec2"
-  project_name = var.project_name
-  vpc_id       = module.vpc.vpc_id
-  subnet_id    = module.vpc.public_subnet_id
-  ami_id       = var.ami_id
 }
 
 module "rds" {

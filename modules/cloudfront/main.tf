@@ -4,7 +4,7 @@ resource "aws_cloudfront_distribution" "api_cdn" {
   default_root_object = "index.html"
 
   origin {
-    domain_name = var.api_origin_domain
+    domain_name = var.domain_name
     origin_id   = "api-origin"
 
     custom_origin_config {

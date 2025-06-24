@@ -1,9 +1,14 @@
 output "instance_id" {
-  description = "Ec2 instance id"
+  description = "EC2 instance ID"
   value       = aws_instance.api.id
 }
 
 output "public_ip" {
-  description = "Ec2 instance public ip"
+  description = "EC2 public IP"
   value       = aws_instance.api.public_ip
+}
+
+output "public_dns" {
+  description = "EC2 public DNS name"
+  value       = aws_instance.api.public_dns
 }
