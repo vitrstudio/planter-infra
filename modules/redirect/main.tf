@@ -60,4 +60,6 @@ resource "aws_cloudfront_distribution" "redirect" {
   tags = {
     Name = "${var.project_name}-redirect-cdn"
   }
+
+  depends_on = [aws_s3_bucket_website_configuration.redirect]
 }
