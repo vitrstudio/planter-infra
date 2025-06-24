@@ -12,3 +12,7 @@ variable "root_record_ip" {
   description = "Root ip address"
   type        = string
 }
+
+variable "zone_id" {
+  type = string
+}

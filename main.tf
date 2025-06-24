@@ -17,6 +17,7 @@ module "route53" {
   project_name   = var.project_name
   domain_name    = var.domain_name
   root_record_ip = module.ec2.public_ip
+  zone_id        = module.hosted_zone.zone_id
 }
 
 module "ec2" {
