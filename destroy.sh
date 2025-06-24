@@ -14,6 +14,7 @@ terraform destroy -auto-approve \
   -var="region=${AWS_REGION}" \
   -var="project_id=${PROJECT_ID}" \
   -var="project_name=${PROJECT_NAME}" \
+  -var="domain_name=${DOMAIN_NAME}" \
   -var="ami_id=${AMI_ID}" \
   -var="db_name=${DB_NAME}" \
   -var="db_user=${DB_USERNAME}" \

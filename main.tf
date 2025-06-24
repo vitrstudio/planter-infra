@@ -12,13 +12,12 @@ module "nacl" {
   private_subnet_ids = module.vpc.private_subnet_ids
 }
 
-# Disabled until a domain is acquired
-#module "route53" {
-#  source         = "./modules/route53"
-#  project_name   = var.project_name
-#  domain_name    = var.domain_name
-#  root_record_ip = module.ec2.public_ip
-#}
+module "route53" {
+  source         = "./modules/route53"
+  project_name   = var.project_name
+  domain_name    = var.domain_name
+  root_record_ip = module.ec2.public_ip
+}
 
 module "ec2" {
   source       = "./modules/ec2"

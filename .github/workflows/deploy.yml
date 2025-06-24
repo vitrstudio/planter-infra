@@ -12,6 +12,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
       GITHUB_USER: jordivilagut
+      DOMAIN_NAME: farmify.app
       PROJECT_ID: a9191e2a
       PROJECT_NAME: planter
       AMI_ID: ami-0964cf532678dde1f
@@ -43,6 +44,7 @@ jobs:
             -var="region=${AWS_DEFAULT_REGION}" \
             -var="project_id=${PROJECT_ID}" \
             -var="project_name=${PROJECT_NAME}" \
+            -var="domain_name=${DOMAIN_NAME}" \
             -var="ami_id=${AMI_ID}" \
             -var="db_name=${DB_NAME}" \
             -var="db_user=${DB_USERNAME}" \

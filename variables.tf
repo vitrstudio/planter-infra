@@ -27,8 +27,7 @@ variable "db_password" {
   description = "Database password"
   sensitive   = true
 }
-# Disabled until a domain is acquired
-# variable "domain_name" {
-#   description = "The root domain name"
-#   type        = string
-# }
+variable "domain_name" {
+  description = "The root domain name"
+  type        = string
+}
