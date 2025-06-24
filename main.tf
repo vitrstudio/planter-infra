@@ -1,7 +1,7 @@
 module "vpc" {
   source       = "./modules/vpc"
   project_name = var.project_name
-  azs    = ["${var.region}a", "${var.region}b"]
+  azs          = ["${var.region}a", "${var.region}b"]
 }
 
 module "nacl" {
@@ -12,12 +12,32 @@ module "nacl" {
   private_subnet_ids = module.vpc.private_subnet_ids
 }
 
+module "acm" {
+  source      = "./modules/acm"
+  domain_name = var.domain_name
+  zone_id     = module.hosted_zone.zone_id
+}
+
+module "s3" {
+  source          = "./modules/s3"
+  project_id      = var.project_id
+  project_name    = var.project_name
+  certificate_arn = module.acm.certificate_arn
+}
+
+module "redirect" {
+  source          = "./modules/redirect"
+  domain_name     = var.domain_name
+  certificate_arn = module.acm.certificate_arn
+}
+
 module "route53" {
-  source         = "./modules/route53"
-  project_name   = var.project_name
-  domain_name    = var.domain_name
-  root_record_ip = module.ec2.public_ip
-  zone_id        = module.hosted_zone.zone_id
+  source                  = "./modules/route53"
+  project_name            = var.project_name
+  domain_name             = var.domain_name
+  root_cloudfront_domain  = module.s3.cloudfront_domain
+  www_cloudfront_domain   = module.redirect.redirect_domain
+  zone_id                 = module.hosted_zone.zone_id
 }
 
 module "ec2" {
@@ -26,12 +46,6 @@ module "ec2" {
   vpc_id       = module.vpc.vpc_id
   subnet_id    = module.vpc.public_subnet_id
   ami_id       = var.ami_id
-}
-
-module "s3" {
-  source       = "./modules/s3"
-  project_id   = var.project_id
-  project_name = var.project_name
 }
 
 module "rds" {

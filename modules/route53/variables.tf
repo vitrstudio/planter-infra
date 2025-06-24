@@ -8,11 +8,17 @@ variable "domain_name" {
   type        = string
 }
 
-variable "root_record_ip" {
-  description = "Root ip address"
+variable "zone_id" {
   type        = string
+  description = "Hosted zone id"
 }
 
-variable "zone_id" {
-  type = string
+variable "root_cloudfront_domain" {
+  type        = string
+  description = "Cloudfront domain for root domain"
+}
+
+variable "www_cloudfront_domain" {
+  type        = string
+  description = "Cloudfront domain for www subdomain"
 }
