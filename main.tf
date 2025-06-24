@@ -41,6 +41,8 @@ module "cloudfront" {
   api_origin_domain = module.ec2.public_dns
   s3_domain_name    = module.s3.bucket_regional_domain_name
   oac_id            = module.s3.oac_id
+  s3_bucket_id        = module.s3.bucket_name
+  s3_bucket_arn       = module.s3.bucket_arn
 }
 
 module "route53" {

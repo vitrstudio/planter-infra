@@ -12,3 +12,7 @@ output "oac_id" {
   description = "Origin Access Control ID"
   value       = aws_cloudfront_origin_access_control.oac.id
 }
+
+output "bucket_arn" {
+  value = aws_s3_bucket.website.arn
+}

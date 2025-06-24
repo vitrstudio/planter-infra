@@ -68,3 +68,27 @@ resource "aws_cloudfront_distribution" "api_cdn" {
 
   depends_on = [var.oac_id] # Ensure OAC is created first
 }
+
+resource "aws_s3_bucket_policy" "website_policy" {
+  bucket = var.s3_bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid       = "AllowCloudFrontServicePrincipalReadOnly",
+        Effect    = "Allow",
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        },
+        Action    = "s3:GetObject",
+        Resource  = "${var.s3_bucket_arn}/*",
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.api_cdn.arn
+          }
+        }
+      }
+    ]
+  })
+}
