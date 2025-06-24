@@ -15,7 +15,7 @@ jobs:
       DOMAIN_NAME: farmify.app
       PROJECT_ID: a9191e2a
       PROJECT_NAME: planter
-      AMI_ID: ami-01791f76211feade9
+      AMI_ID: ami-01f3a9a49e4032afb
       DB_NAME: planterdb
       DB_USERNAME: planteradmin
       DB_PASSWORD: ${{ secrets.PLANTER_DB_PASSWORD }}

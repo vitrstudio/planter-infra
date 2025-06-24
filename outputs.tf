@@ -13,5 +13,5 @@ output "s3_bucket" {
 }
 
 output "cloudfront_distribution_url" {
-  value = module.s3.cloudfront_domain
+  value = module.cloudfront.cloudfront_domain
 }

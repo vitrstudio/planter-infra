@@ -18,6 +18,14 @@ module "acm" {
   zone_id     = module.hosted_zone.zone_id
 }
 
+module "cloudfront" {
+  source           = "./modules/cloudfront"
+  project_name     = var.project_name
+  domain_name      = var.domain_name
+  certificate_arn  = module.acm.certificate_arn
+  api_origin_domain = "your-ec2-public-dns-or-elastic-ip"
+}
+
 module "s3" {
   source          = "./modules/s3"
   project_id      = var.project_id
@@ -36,7 +44,7 @@ module "route53" {
   source                  = "./modules/route53"
   project_name            = var.project_name
   domain_name             = var.domain_name
-  root_cloudfront_domain  = module.s3.cloudfront_domain
+  root_cloudfront_domain  = module.cloudfront.cloudfront_domain
   www_cloudfront_domain   = module.redirect.redirect_domain
   zone_id                 = module.hosted_zone.zone_id
 }
