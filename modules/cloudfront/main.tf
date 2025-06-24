@@ -1,10 +1,16 @@
 resource "aws_cloudfront_distribution" "api_cdn" {
-  enabled = true
-  is_ipv6_enabled = true
+  enabled             = true
+  is_ipv6_enabled     = true
   default_root_object = "index.html"
 
   origin {
-    domain_name = var.domain_name
+    domain_name              = var.s3_domain_name
+    origin_id                = "s3-origin"
+    origin_access_control_id = var.oac_id
+  }
+
+  origin {
+    domain_name = var.api_origin_domain  # ec2-XX-XX.compute-1.amazonaws.com
     origin_id   = "api-origin"
 
     custom_origin_config {
@@ -15,22 +21,8 @@ resource "aws_cloudfront_distribution" "api_cdn" {
     }
   }
 
-  ordered_cache_behavior {
-    path_pattern           = "/api/*"
-    target_origin_id       = "api-origin"
-    viewer_protocol_policy = "redirect-to-https"
-
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"]
-    cached_methods   = ["GET", "HEAD"]
-
-    compress = true
-
-    cache_policy_id          = "b2884449-e4de-46a7-ac36-70bc7f1ddd6d" # CachingDisabled
-    origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # AllViewer
-  }
-
   default_cache_behavior {
-    target_origin_id       = "api-origin"
+    target_origin_id       = "s3-origin"
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
@@ -41,6 +33,19 @@ resource "aws_cloudfront_distribution" "api_cdn" {
         forward = "none"
       }
     }
+  }
+
+  ordered_cache_behavior {
+    path_pattern           = "/api/*"
+    target_origin_id       = "api-origin"
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"]
+    cached_methods   = ["GET", "HEAD"]
+    compress         = true
+
+    cache_policy_id          = "b2884449-e4de-46a7-ac36-70bc7f1ddd6d" # CachingDisabled
+    origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # AllViewer
   }
 
   restrictions {
@@ -60,4 +65,6 @@ resource "aws_cloudfront_distribution" "api_cdn" {
   tags = {
     Name = "${var.project_name}-api-cdn"
   }
+
+  depends_on = [var.oac_id] # Ensure OAC is created first
 }

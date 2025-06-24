@@ -3,7 +3,12 @@ output "bucket_name" {
   value       = aws_s3_bucket.website.bucket
 }
 
-output "website_endpoint" {
-  description = "S3 static website endpoint"
-  value       = aws_s3_bucket_website_configuration.website.website_endpoint
+output "bucket_regional_domain_name" {
+  description = "S3 bucket regional domain for CloudFront origin"
+  value       = aws_s3_bucket.website.bucket_regional_domain_name
+}
+
+output "oac_id" {
+  description = "Origin Access Control ID"
+  value       = aws_cloudfront_origin_access_control.oac.id
 }
