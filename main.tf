@@ -29,6 +29,7 @@ module "redirect" {
   source          = "./modules/redirect"
   domain_name     = var.domain_name
   certificate_arn = module.acm.certificate_arn
+  project_name    = var.project_name
 }
 
 module "route53" {
