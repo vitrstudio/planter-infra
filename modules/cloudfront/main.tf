@@ -30,13 +30,6 @@ resource "aws_cloudfront_distribution" "api_cdn" {
 
     cache_policy_id          = "b2884449-e4de-46a7-ac36-70bc7f1ddd6d" # CachingDisabled
     origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # Simple (includes Host header)
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
   }
 
   ordered_cache_behavior {
