@@ -38,7 +38,7 @@ module "ec2" {
   subnet_id    = module.vpc.public_subnet_id
   ami_id       = var.ami_id
   deployment_s3_bucket_name = module.deployment_s3.bucket_name
-  deployment_s3_bucket_arn  = module.deployment_s3.bucket_arn
+  deployment_s3_read_policy_arn  = module.deployment_s3.deployment_s3_read_policy_arn
 }
 
 module "cloudfront" {
