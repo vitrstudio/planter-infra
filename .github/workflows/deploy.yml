@@ -85,38 +85,25 @@ jobs:
 
       - name: Store deployment values in AWS Secrets Manager
         run: |
-          aws secretsmanager create-secret \
-            --name planter/ec2_instance_id \
-            --secret-string "${{ steps.tfoutput.outputs.ec2_instance_id }}" \
-            || aws secretsmanager update-secret \
-            --secret-id planter/ec2_instance_id \
-            --secret-string "${{ steps.tfoutput.outputs.ec2_instance_id }}"
+          put_secret() {
+            local name=$1
+            local value=$2
 
-          aws secretsmanager create-secret \
-            --name planter/ec2_public_ip \
-            --secret-string "${{ steps.tfoutput.outputs.ec2_public_ip }}" \
-            || aws secretsmanager update-secret \
-            --secret-id planter/ec2_public_ip \
-            --secret-string "${{ steps.tfoutput.outputs.ec2_public_ip }}"
+            if aws secretsmanager describe-secret --secret-id "$name" > /dev/null 2>&1; then
+              echo "Updating $name"
+              aws secretsmanager update-secret \
+                --secret-id "$name" \
+                --secret-string "$value"
+            else
+              echo "Creating $name"
+              aws secretsmanager create-secret \
+                --name "$name" \
+                --secret-string "$value"
+            fi
+          }
 
-          aws secretsmanager create-secret \
-            --name planter/rds_endpoint \
-            --secret-string "${{ steps.tfoutput.outputs.rds_endpoint }}" \
-            || aws secretsmanager update-secret \
-            --secret-id planter/rds_endpoint \
-            --secret-string "${{ steps.tfoutput.outputs.rds_endpoint }}"
-
-          aws secretsmanager create-secret \
-            --name planter/deployment_bucket \
-            --secret-string "${{ steps.tfoutput.outputs.deployment_bucket }}" \
-            || aws secretsmanager update-secret \
-            --secret-id planter/deployment_bucket \
-            --secret-string "${{ steps.tfoutput.outputs.deployment_bucket }}"
-
-          aws secretsmanager create-secret \
-            --name planter/github_role_arn \
-            --secret-string "$(terraform output -raw github_role_arn)" \
-            || aws secretsmanager update-secret \
-            --secret-id planter/github_role_arn \
-            --secret-string "$(terraform output -raw github_role_arn)"
-      
+          put_secret planter/ec2_instance_id "${{ steps.tfoutput.outputs.ec2_instance_id }}"
+          put_secret planter/ec2_public_ip "${{ steps.tfoutput.outputs.ec2_public_ip }}"
+          put_secret planter/rds_endpoint "${{ steps.tfoutput.outputs.rds_endpoint }}"
+          put_secret planter/deployment_bucket "${{ steps.tfoutput.outputs.deployment_bucket }}"
+          put_secret planter/github_role_arn "$(terraform output -raw github_role_arn)"
