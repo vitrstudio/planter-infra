@@ -92,5 +92,5 @@ resource "aws_instance" "api" {
 
 resource "aws_iam_role_policy_attachment" "attach_deployment_read" {
   role       = aws_iam_role.ec2_ssm.name
-  policy_arn = var.deployment_s3_read_policy_arn
+  policy_arn = aws_iam_policy.deployment_bucket_read.arn
 }
