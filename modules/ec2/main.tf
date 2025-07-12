@@ -57,6 +57,24 @@ resource "aws_iam_instance_profile" "ec2_ssm" {
   role = aws_iam_role.ec2_ssm.name
 }
 
+resource "aws_iam_policy" "deployment_bucket_read" {
+  name = "${var.project_name}-deployment-s3-read"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = ["s3:GetObject", "s3:ListBucket"],
+        Resource = [
+          "arn:aws:s3:::${var.deployment_s3_bucket_name}",
+          "arn:aws:s3:::${var.deployment_s3_bucket_name}/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_instance" "api" {
   ami                         = var.ami_id
   instance_type               = var.instance_type

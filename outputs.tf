@@ -8,8 +8,12 @@ output "rds_endpoint" {
   value       = module.rds.rds_endpoint
 }
 
-output "s3_bucket" {
-  value = module.s3.bucket_name
+output "app_s3_bucket_name" {
+  value = module.app_s3.bucket_name
+}
+
+output "deployment_s3_bucket_name" {
+  value = module.deployment_s3.bucket_name
 }
 
 output "cloudfront_distribution_url" {
