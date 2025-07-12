@@ -18,7 +18,6 @@ jobs:
       AMI_ID: ami-01f3a9a49e4032afb
       DB_NAME: planterdb
       DB_USERNAME: planteradmin
-      DB_PASSWORD: ${{ secrets.PLANTER_DB_PASSWORD }}
 
     steps:
       - name: Checkout repo
@@ -28,6 +27,24 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.0
+
+      - name: Generate or retrieve DB password from AWS Secrets Manager
+        id: dbpass
+        run: |
+          SECRET_NAME="planter/db_password"
+
+          PASSWORD=$(aws secretsmanager get-secret-value \
+            --secret-id "$SECRET_NAME" \
+            --query SecretString --output text 2>/dev/null || true)
+
+          if [ -z "$PASSWORD" ]; then
+            PASSWORD=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 20)
+            aws secretsmanager create-secret \
+              --name "$SECRET_NAME" \
+              --secret-string "$PASSWORD"
+          fi
+
+          echo "DB_PASSWORD=$PASSWORD" >> $GITHUB_ENV
 
       - name: Terraform Init
         run: |
@@ -62,16 +79,10 @@ jobs:
           echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT
           echo "cloudfront_url=$(terraform output -raw cloudfront_distribution_url)" >> $GITHUB_OUTPUT
           echo "rds_endpoint=$(terraform output -raw rds_endpoint)" >> $GITHUB_OUTPUT
+          echo "deployment_bucket=$(terraform output -raw deployment_bucket)" >> $GITHUB_OUTPUT
         working-directory: .
 
-      - name: Output values to copy
-        run: |
-          echo "EC2 IP: $(terraform output -raw ec2_public_ip)"
-          echo "S3 Bucket: $(terraform output -raw s3_bucket)"
-          echo "CloudFront URL: $(terraform output -raw cloudfront_distribution_url)"
-          echo "RDS Endpoint: $(terraform output -raw rds_endpoint)"
-
-      - name: Store EC2 IP and RDS Endpoint in AWS Secrets Manager
+      - name: Store EC2 IP, RDS Endpoint, and Deployment Bucket in AWS Secrets Manager
         run: |
           aws secretsmanager create-secret \
             --name planter/ec2_public_ip \
@@ -87,3 +98,9 @@ jobs:
             --secret-id planter/rds_endpoint \
             --secret-string "${{ steps.tfoutput.outputs.rds_endpoint }}"
 
+          aws secretsmanager create-secret \
+            --name planter/deployment_bucket \
+            --secret-string "${{ steps.tfoutput.outputs.deployment_bucket }}" \
+            || aws secretsmanager update-secret \
+            --secret-id planter/deployment_bucket \
+            --secret-string "${{ steps.tfoutput.outputs.deployment_bucket }}"
