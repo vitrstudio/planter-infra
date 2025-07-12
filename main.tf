@@ -28,6 +28,7 @@ module "app_s3" {
   project_id      = var.project_id
   project_name    = var.project_name
   certificate_arn = module.acm.certificate_arn
+  cloudfront_distribution_arn = module.cloudfront.cloudfront_distribution_arn
 }
 
 module "ec2" {

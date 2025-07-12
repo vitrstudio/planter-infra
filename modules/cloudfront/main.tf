@@ -26,6 +26,10 @@ resource "aws_cloudfront_distribution" "api_cdn" {
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
+    compress               = true
+
+    cache_policy_id          = "b2884449-e4de-46a7-ac36-70bc7f1ddd6d" # CachingDisabled
+    origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # Simple (includes Host header)
 
     forwarded_values {
       query_string = false
@@ -60,35 +64,15 @@ resource "aws_cloudfront_distribution" "api_cdn" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
-  aliases = [var.domain_name]
+  aliases = [
+    var.domain_name,
+    "www.${var.domain_name}",
+    "api.${var.domain_name}"
+  ]
 
   tags = {
     Name = "${var.project_name}-api-cdn"
   }
 
-  depends_on = [var.oac_id] # Ensure OAC is created first
-}
-
-resource "aws_s3_bucket_policy" "website_policy" {
-  bucket = var.s3_bucket_id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid       = "AllowCloudFrontServicePrincipalReadOnly",
-        Effect    = "Allow",
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        },
-        Action    = "s3:GetObject",
-        Resource  = "${var.s3_bucket_arn}/*",
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.api_cdn.arn
-          }
-        }
-      }
-    ]
-  })
+  depends_on = [var.oac_id]
 }

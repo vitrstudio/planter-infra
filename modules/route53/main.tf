@@ -17,3 +17,15 @@ resource "aws_route53_record" "www" {
   ttl     = 300
   records = [var.domain_name]
 }
+
+resource "aws_route53_record" "api" {
+  zone_id = var.zone_id
+  name    = "api.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = var.root_cloudfront_domain
+    zone_id                = "Z2FDTNDATAQYW2" # CloudFront global zone ID
+    evaluate_target_health = false
+  }
+}
