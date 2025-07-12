@@ -72,3 +72,10 @@ module "rds" {
   db_user            = var.db_user
   db_password        = var.db_password
 }
+
+module "github" {
+  source          = "./modules/github"
+  project_name    = var.project_name
+  repository_name = "codefarmx/${var.project_name}"
+  aws_account_id  = "962926148312"
+}
