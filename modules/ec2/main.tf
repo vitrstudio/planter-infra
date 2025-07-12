@@ -89,3 +89,8 @@ resource "aws_instance" "api" {
     Name = "${var.project_name}-api"
   }
 }
+
+resource "aws_iam_role_policy_attachment" "attach_deployment_read" {
+  role       = aws_iam_role.ec2_ssm.name
+  policy_arn = var.deployment_s3_bucket_arn
+}

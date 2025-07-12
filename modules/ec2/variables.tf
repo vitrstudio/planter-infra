@@ -34,3 +34,8 @@ variable "deployment_s3_bucket_name" {
   description = "Name of the S3 bucket for deployment artifacts"
   type        = string
 }
+
+variable "deployment_s3_bucket_arn" {
+    description = "ARN of the S3 bucket for deployment artifacts"
+    type        = string
+}
