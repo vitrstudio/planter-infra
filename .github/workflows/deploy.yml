@@ -112,3 +112,11 @@ jobs:
             || aws secretsmanager update-secret \
             --secret-id planter/deployment_bucket \
             --secret-string "${{ steps.tfoutput.outputs.deployment_bucket }}"
+
+          aws secretsmanager create-secret \
+            --name planter/github_role_arn \
+            --secret-string "$(terraform output -raw github_role_arn)" \
+            || aws secretsmanager update-secret \
+            --secret-id planter/github_role_arn \
+            --secret-string "$(terraform output -raw github_role_arn)"
+      
