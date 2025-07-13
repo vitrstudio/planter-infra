@@ -10,14 +10,7 @@ terraform init \
   -backend-config="region=${AWS_REGION}" \
   -backend-config="encrypt=true"
 
-terraform destroy -auto-approve \
-  -target=module.vpc \
-  -target=module.nacl \
-  -target=module.ec2 \
-  -target=module.s3 \
-  -target=module.rds \
-  -target=module.route53 \
-  -target=module.acm \
+terraform apply -auto-approve \
   -var="region=${AWS_REGION}" \
   -var="project_id=${PROJECT_ID}" \
   -var="project_name=${PROJECT_NAME}" \
@@ -25,4 +18,5 @@ terraform destroy -auto-approve \
   -var="ami_id=${AMI_ID}" \
   -var="db_name=${DB_NAME}" \
   -var="db_user=${DB_USERNAME}" \
-  -var="db_password=${DB_PASSWORD}"
+  -var="db_password=${DB_PASSWORD}" \
+  -var="hosted_zone_id=${HOSTED_ZONE_ID}"

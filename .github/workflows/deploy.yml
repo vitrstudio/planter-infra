@@ -23,28 +23,39 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.7.0
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
 
-      - name: Generate or retrieve DB password from AWS Secrets Manager
+      - name: Retrieve or generate DB password from Secrets Manager
         id: dbpass
         run: |
           SECRET_NAME="planter/db_password"
 
           PASSWORD=$(aws secretsmanager get-secret-value \
             --secret-id "$SECRET_NAME" \
+            --region "$AWS_DEFAULT_REGION" \
             --query SecretString --output text 2>/dev/null || true)
 
           if [ -z "$PASSWORD" ]; then
             PASSWORD=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 20)
             aws secretsmanager create-secret \
               --name "$SECRET_NAME" \
-              --secret-string "$PASSWORD"
+              --secret-string "$PASSWORD" \
+              --region "$AWS_DEFAULT_REGION"
           fi
 
           echo "DB_PASSWORD=$PASSWORD" >> $GITHUB_ENV
+
+      - name: Retrieve hosted_zone_id from Secrets Manager
+        id: hostedzone
+        run: |
+          HOSTED_ZONE_ID=$(aws secretsmanager get-secret-value \
+            --secret-id "planter/hosted_zone_id" \
+            --region "$AWS_DEFAULT_REGION" \
+            --query SecretString --output text)
+          echo "HOSTED_ZONE_ID=$HOSTED_ZONE_ID" >> $GITHUB_ENV
 
       - name: Terraform Init
         run: |
@@ -53,7 +64,7 @@ jobs:
             -backend-config="key=users/${GITHUB_USER}/${PROJECT_NAME}/terraform.tfstate" \
             -backend-config="region=${AWS_DEFAULT_REGION}" \
             -backend-config="encrypt=true"
-        working-directory: .
+        working-directory: infra
 
       - name: Terraform Plan
         run: |
@@ -65,12 +76,16 @@ jobs:
             -var="ami_id=${AMI_ID}" \
             -var="db_name=${DB_NAME}" \
             -var="db_user=${DB_USERNAME}" \
-            -var="db_password=${DB_PASSWORD}"
-        working-directory: .
+            -var="db_password=$DB_PASSWORD" \
+            -var="hosted_zone_id=$HOSTED_ZONE_ID"
+        env:
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          HOSTED_ZONE_ID: ${{ env.HOSTED_ZONE_ID }}
+        working-directory: infra
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
-        working-directory: .
+        working-directory: infra
 
       - name: Extract Outputs
         id: tfoutput
@@ -81,7 +96,8 @@ jobs:
           echo "deployment_bucket=$(terraform output -raw deployment_s3_bucket_name)" >> $GITHUB_OUTPUT
           echo "cloudfront_url=$(terraform output -raw cloudfront_distribution_url)" >> $GITHUB_OUTPUT
           echo "rds_endpoint=$(terraform output -raw rds_endpoint)" >> $GITHUB_OUTPUT
-        working-directory: .
+          echo "github_role_arn=$(terraform output -raw github_role_arn)" >> $GITHUB_OUTPUT
+        working-directory: infra
 
       - name: Store deployment values in AWS Secrets Manager
         run: |
@@ -89,16 +105,18 @@ jobs:
             local name=$1
             local value=$2
 
-            if aws secretsmanager describe-secret --secret-id "$name" > /dev/null 2>&1; then
+            if aws secretsmanager describe-secret --secret-id "$name" --region "$AWS_DEFAULT_REGION" > /dev/null 2>&1; then
               echo "Updating $name"
               aws secretsmanager update-secret \
                 --secret-id "$name" \
-                --secret-string "$value"
+                --secret-string "$value" \
+                --region "$AWS_DEFAULT_REGION"
             else
               echo "Creating $name"
               aws secretsmanager create-secret \
                 --name "$name" \
-                --secret-string "$value"
+                --secret-string "$value" \
+                --region "$AWS_DEFAULT_REGION"
             fi
           }
 
@@ -106,4 +124,4 @@ jobs:
           put_secret planter/ec2_public_ip "${{ steps.tfoutput.outputs.ec2_public_ip }}"
           put_secret planter/rds_endpoint "${{ steps.tfoutput.outputs.rds_endpoint }}"
           put_secret planter/deployment_bucket "${{ steps.tfoutput.outputs.deployment_bucket }}"
-          put_secret planter/github_role_arn "$(terraform output -raw github_role_arn)"
+          put_secret planter/github_role_arn "${{ steps.tfoutput.outputs.github_role_arn }}"

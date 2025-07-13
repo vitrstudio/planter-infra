@@ -38,3 +38,8 @@ variable "domain_name" {
   description = "The root domain name"
   type        = string
 }
+
+variable "hosted_zone_id" {
+    description = "The ID of the hosted zone in Route53"
+    type        = string
+}

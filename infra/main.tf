@@ -15,7 +15,7 @@ module "nacl" {
 module "acm" {
   source      = "./modules/acm"
   domain_name = var.domain_name
-  zone_id     = module.hosted_zone.zone_id
+  zone_id     = var.hosted_zone_id
 }
 
 module "deployment_s3" {
@@ -57,7 +57,7 @@ module "route53" {
   project_name            = var.project_name
   domain_name             = var.domain_name
   root_cloudfront_domain  = module.cloudfront.cloudfront_domain
-  zone_id                 = module.hosted_zone.zone_id
+  zone_id                 = var.hosted_zone_id
 }
 
 module "rds" {
