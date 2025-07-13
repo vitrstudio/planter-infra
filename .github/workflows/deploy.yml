@@ -24,6 +24,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
       - name: Retrieve or generate DB password from Secrets Manager
         id: dbpass
         run: |
