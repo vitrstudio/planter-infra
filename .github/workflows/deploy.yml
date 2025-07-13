@@ -18,15 +18,11 @@ jobs:
       AMI_ID: ami-01f3a9a49e4032afb
       DB_NAME: planterdb
       DB_USERNAME: planteradmin
+      HOSTED_ZONE_ID: Z08038062H2ZA3PTTK6G3
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
 
       - name: Retrieve or generate DB password from Secrets Manager
         id: dbpass
@@ -47,15 +43,6 @@ jobs:
           fi
 
           echo "DB_PASSWORD=$PASSWORD" >> $GITHUB_ENV
-
-      - name: Retrieve hosted_zone_id from Secrets Manager
-        id: hostedzone
-        run: |
-          HOSTED_ZONE_ID=$(aws secretsmanager get-secret-value \
-            --secret-id "planter/hosted_zone_id" \
-            --region "$AWS_DEFAULT_REGION" \
-            --query SecretString --output text)
-          echo "HOSTED_ZONE_ID=$HOSTED_ZONE_ID" >> $GITHUB_ENV
 
       - name: Terraform Init
         run: |

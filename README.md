@@ -5,7 +5,8 @@ This project automates the infrastructure deployment of the planter application
 
 1. Deploy the hosted zone
 2. Add manually the DNS to the hosted zone
-3. Deploy the modules
+3. Add manually the hosted zone ID to the modules ci-cd pipeline (deploy.yml)
+4. Deploy the modules
 
 -- Explain the backend.tf file
 -- Explain in this readme why hosted zone must be persisted
