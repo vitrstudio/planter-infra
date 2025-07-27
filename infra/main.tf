@@ -1,7 +1,7 @@
 module "vpc" {
   source       = "./modules/vpc"
   project_name = var.project_name
-  azs          = ["${var.region}a", "${var.region}b"]
+  azs          = ["${var.region}-a", "${var.region}-b"]
 }
 
 module "nacl" {
@@ -10,12 +10,6 @@ module "nacl" {
   vpc_id             = module.vpc.vpc_id
   public_subnet_id   = module.vpc.public_subnet_id
   private_subnet_ids = module.vpc.private_subnet_ids
-}
-
-module "acm" {
-  source      = "./modules/acm"
-  domain_name = var.domain_name
-  zone_id     = var.hosted_zone_id
 }
 
 module "deployment_s3" {
@@ -27,7 +21,7 @@ module "app_s3" {
   source          = "./modules/s3/application"
   project_id      = var.project_id
   project_name    = var.project_name
-  certificate_arn = module.acm.certificate_arn
+  certificate_arn = var.certificate_arn
   cloudfront_distribution_arn = module.cloudfront.cloudfront_distribution_arn
 }
 
@@ -75,6 +69,6 @@ module "rds" {
 module "github" {
   source          = "./modules/github"
   project_name    = var.project_name
-  repository_name = "codefarmx/${var.project_name}"
+  repository_name = "vitrx/${var.project_name}"
   aws_account_id  = "962926148312"
 }

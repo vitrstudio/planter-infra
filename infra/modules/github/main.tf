@@ -93,7 +93,6 @@ resource "aws_iam_role_policy" "github_permissions" {
       {
         Effect   = "Allow",
         Action   = [
-          "secretsmanager:GetSecretValue",
           "ssm:SendCommand",
           "ec2:DescribeInstances",
           "s3:PutObject",

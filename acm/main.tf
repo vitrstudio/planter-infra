@@ -1,10 +1,13 @@
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.5.0"
+    }
+  }
 }
 
 resource "aws_acm_certificate" "cert" {
-  provider          = aws.us_east_1
   domain_name       = var.domain_name
   subject_alternative_names = [
     "www.${var.domain_name}",
@@ -22,7 +25,7 @@ resource "aws_route53_record" "validation" {
     }
   }
 
-  zone_id = var.zone_id
+  zone_id = var.hosted_zone_id
   name    = each.value.name
   type    = each.value.type
   ttl     = 60
@@ -30,7 +33,6 @@ resource "aws_route53_record" "validation" {
 }
 
 resource "aws_acm_certificate_validation" "cert_validation" {
-  provider                = aws.us_east_1
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.validation : record.fqdn]
 }
