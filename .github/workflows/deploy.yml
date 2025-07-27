@@ -48,7 +48,7 @@ jobs:
 
       - name: Extract outputs
         id: tfoutput
-        run: .github/scripts/terraform_extract_outputs.sh
+        run: ../.github/scripts/terraform_extract_outputs.sh
         working-directory: infra
 
       - name: Store deployment values in SSM parameter store
