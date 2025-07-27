@@ -1,7 +1,7 @@
 module "vpc" {
   source       = "./modules/vpc"
   project_name = var.project_name
-  azs          = ["${var.region}-a", "${var.region}-b"]
+  azs          = ["${var.region}a", "${var.region}b"]
 }
 
 module "nacl" {
