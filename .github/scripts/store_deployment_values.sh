@@ -24,8 +24,8 @@ put_param() {
   fi
 }
 
-put_param planter/ec2_instance_id "$1"
-put_param planter/ec2_public_ip "$2"
-put_param planter/rds_endpoint "$3"
-put_param planter/deployment_bucket "$4"
-put_param planter/github_role_arn "$5"
+put_param /planter/ec2_instance_id "$1"
+put_param /planter/ec2_public_ip "$2"
+put_param /planter/rds_endpoint "$3"
+put_param /planter/deployment_bucket "$4"
+put_param /planter/github_role_arn "$5"
