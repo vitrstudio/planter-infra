@@ -35,11 +35,11 @@ jobs:
         run: .github/scripts/get_or_create_db_password.sh
 
       - name: Terraform init
-        run: .github/scripts/terraform_init.sh
+        run: ../.github/scripts/terraform_init.sh
         working-directory: infra
 
       - name: Terraform plan
-        run: .github/scripts/terraform_plan.sh
+        run: ../.github/scripts/terraform_plan.sh
         working-directory: infra
 
       - name: Terraform apply
