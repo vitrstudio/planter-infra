@@ -69,6 +69,6 @@ module "rds" {
 module "github" {
   source          = "./modules/github"
   project_name    = var.project_name
-  repository_name = "vitrx/${var.project_name}"
+  github_repo     = "vitrstudio/${var.project_name}"
   aws_account_id  = "962926148312"
 }
