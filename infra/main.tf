@@ -25,6 +25,11 @@ module "app_s3" {
   cloudfront_distribution_arn = module.cloudfront.cloudfront_distribution_arn
 }
 
+module "ssm" {
+  source = "./modules/ssm"
+  project_name = var.project_name
+}
+
 module "ec2" {
   source       = "./modules/ec2"
   project_name = var.project_name
@@ -32,6 +37,18 @@ module "ec2" {
   subnet_id    = module.vpc.public_subnet_id
   ami_id       = var.ami_id
   deployment_s3_bucket_name = module.deployment_s3.bucket_name
+  ssm_profile_name = module.ssm.ssm_profile_name
+  ssm_role_name    = module.ssm.ssm_role_name
+}
+
+module "bastion" {
+  source = "./modules/bastion"
+  project_name         = var.project_name
+  vpc_id               = module.vpc.vpc_id
+  public_subnet_id     = module.vpc.public_subnet_id
+  ami_id               = var.ami_id
+  key_name             = var.project_name
+  ssm_profile_name     = module.ssm.ssm_profile_name
 }
 
 module "cloudfront" {

@@ -32,31 +32,6 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-resource "aws_iam_role" "ec2_ssm" {
-  name = "${var.project_name}-ec2-ssm-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      },
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ssm" {
-  role       = aws_iam_role.ec2_ssm.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_instance_profile" "ec2_ssm" {
-  name = "${var.project_name}-ec2-ssm-profile"
-  role = aws_iam_role.ec2_ssm.name
-}
-
 resource "aws_iam_policy" "deployment_bucket_read" {
   name = "${var.project_name}-deployment-s3-read"
 
@@ -83,7 +58,7 @@ resource "aws_instance" "api" {
   user_data_base64            = var.user_data
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
   associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm.name
+  iam_instance_profile        = var.ssm_profile_name
 
   tags = {
     Name = "${var.project_name}-api"
@@ -91,6 +66,6 @@ resource "aws_instance" "api" {
 }
 
 resource "aws_iam_role_policy_attachment" "attach_deployment_read" {
-  role       = aws_iam_role.ec2_ssm.name
+  role       = var.ssm_role_name
   policy_arn = aws_iam_policy.deployment_bucket_read.arn
 }

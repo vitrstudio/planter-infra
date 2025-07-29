@@ -34,3 +34,13 @@ variable "deployment_s3_bucket_name" {
   description = "Name of the S3 bucket for deployment artifacts"
   type        = string
 }
+
+variable "ssm_profile_name" {
+    description = "The name of the SSM instance profile for EC2 instances"
+    type        = string
+}
+
+variable "ssm_role_name" {
+    description = "The name of the SSM role for EC2 instances"
+    type        = string
+}
