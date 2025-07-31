@@ -50,6 +50,16 @@ resource "aws_iam_policy" "deployment_bucket_read" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "attach_deployment_read" {
+  role       = var.ssm_role_name
+  policy_arn = aws_iam_policy.deployment_bucket_read.arn
+}
+
+resource "aws_iam_role_policy_attachment" "attach_ssm_core" {
+  role       = var.ssm_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_instance" "api" {
   ami                         = var.ami_id
   instance_type               = var.instance_type
@@ -60,12 +70,13 @@ resource "aws_instance" "api" {
   associate_public_ip_address = true
   iam_instance_profile        = var.ssm_profile_name
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "optional"
+    http_put_response_hop_limit = 2
+  }
+
   tags = {
     Name = "${var.project_name}-api"
   }
-}
-
-resource "aws_iam_role_policy_attachment" "attach_deployment_read" {
-  role       = var.ssm_role_name
-  policy_arn = aws_iam_policy.deployment_bucket_read.arn
 }
