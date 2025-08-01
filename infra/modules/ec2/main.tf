@@ -33,7 +33,7 @@ resource "aws_security_group" "ec2_sg" {
 }
 
 resource "aws_iam_policy" "deployment_bucket_read_and_write" {
-  name = "${var.project_name}-deployment-s3-read"
+  name = "${var.project_name}-deployment-s3-read-and-write"
 
   policy = jsonencode({
     Version = "2012-10-17",
