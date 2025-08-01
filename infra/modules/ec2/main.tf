@@ -32,7 +32,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-resource "aws_iam_policy" "deployment_bucket_read" {
+resource "aws_iam_policy" "deployment_bucket_read_and_write" {
   name = "${var.project_name}-deployment-s3-read"
 
   policy = jsonencode({
@@ -40,7 +40,12 @@ resource "aws_iam_policy" "deployment_bucket_read" {
     Statement = [
       {
         Effect = "Allow",
-        Action = ["s3:GetObject", "s3:ListBucket"],
+        Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:GetObject",
+          "s3:PutObject"
+        ],
         Resource = [
           "arn:aws:s3:::${var.deployment_s3_bucket_name}",
           "arn:aws:s3:::${var.deployment_s3_bucket_name}/*"
@@ -50,14 +55,9 @@ resource "aws_iam_policy" "deployment_bucket_read" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "attach_deployment_read" {
+resource "aws_iam_role_policy_attachment" "attach_deployment_read_and_write" {
   role       = var.ssm_role_name
-  policy_arn = aws_iam_policy.deployment_bucket_read.arn
-}
-
-resource "aws_iam_role_policy_attachment" "attach_ssm_core" {
-  role       = var.ssm_role_name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  policy_arn = aws_iam_policy.deployment_bucket_read_and_write.arn
 }
 
 resource "aws_instance" "api" {
@@ -71,9 +71,7 @@ resource "aws_instance" "api" {
   iam_instance_profile        = var.ssm_profile_name
 
   metadata_options {
-    http_endpoint               = "enabled"
-    http_tokens                 = "optional"
-    http_put_response_hop_limit = 2
+    http_tokens = "required"
   }
 
   tags = {
