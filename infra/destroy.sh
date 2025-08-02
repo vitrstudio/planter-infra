@@ -15,16 +15,17 @@ HOSTED_ZONE_ID=$(aws ssm get-parameter \
   --output text)
 
 echo "🔍 Fetching Certificate ARN from SSM..."
-HOSTED_ZONE_ID=$(aws ssm get-parameter \
+CERTIFICATE_ARN=$(aws ssm get-parameter \
   --name "/${PROJECT_NAME}/certificate_arn" \
   --region "${AWS_REGION}" \
   --query "Parameter.Value" \
   --output text)
 
-echo "🌐 Hosted Zone ID: $HOSTED_ZONE_ID"
+echo "🌐 Hosted Zone ID:      $HOSTED_ZONE_ID"
+echo "🔒 Certificate ARN:    $CERTIFICATE_ARN"
 
-echo "🚀 Initializing Terraform backend..."
-terraform init -reconfigure \
+echo "🚀 Re-initializing Terraform backend"
+terraform init -reconfigure -migrate-state \
   -backend-config="bucket=vitr-terraform-states" \
   -backend-config="key=users/${GITHUB_USER}/${PROJECT_NAME}/infra/terraform.tfstate" \
   -backend-config="region=${AWS_REGION}" \
@@ -37,7 +38,7 @@ if [[ "$CONFIRM" != "yes" ]]; then
   exit 1
 fi
 
-echo "🔥 Destroying Terraform-managed infrastructure..."
+echo "🔥 Destroying Terraform-managed infrastructure…"
 terraform destroy -auto-approve \
   -var "region=${AWS_DEFAULT_REGION}" \
   -var "project_id=${PROJECT_ID}" \
@@ -50,7 +51,7 @@ terraform destroy -auto-approve \
   -var "hosted_zone_id=${HOSTED_ZONE_ID}" \
   -var "certificate_arn=${CERTIFICATE_ARN}"
 
-echo "🧹 Cleaning up SSM parameters..."
+echo "🧹 Cleaning up SSM parameters…"
 
 PARAMS=(
   "/${PROJECT_NAME}/db_password"
