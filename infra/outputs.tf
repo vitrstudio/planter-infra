@@ -26,5 +26,5 @@ output "cloudfront_distribution_url" {
 }
 
 output "github_role_arn" {
-  value = module.github.github_role_arn
+  value = module.iam_github.github_role_arn
 }

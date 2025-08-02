@@ -1,3 +1,19 @@
+module "iam_github" {
+  source          = "modules/iam/github"
+  project_name    = var.project_name
+  github_repo     = "vitrstudio/${var.project_name}"
+}
+
+module "iam_ssm" {
+  source = "modules/iam/ssm"
+  project_name = var.project_name
+}
+
+module "deployment_s3" {
+  source       = "./modules/s3/deployment"
+  project_name = var.project_name
+}
+
 module "vpc" {
   source       = "./modules/vpc"
   project_name = var.project_name
@@ -12,55 +28,13 @@ module "nacl" {
   private_subnet_ids = module.vpc.private_subnet_ids
 }
 
-module "deployment_s3" {
-  source       = "./modules/s3/deployment"
-  project_name = var.project_name
-}
-
-module "app_s3" {
-  source          = "modules/s3/staticwebsite"
-  project_id      = var.project_id
-  project_name    = var.project_name
-  certificate_arn = var.certificate_arn
-  cloudfront_distribution_arn = module.staticwebsite_cloudfront.cloudfront_distribution_arn
-}
-
-module "ssm" {
-  source = "./modules/ssm"
-  project_name = var.project_name
-}
-
-module "ec2_api" {
-  source       = "./modules/ec2/api"
-  project_name = var.project_name
-  vpc_id       = module.vpc.vpc_id
-  subnet_id    = module.vpc.public_subnet_id
-  ami_id       = var.ami_id
-  deployment_s3_bucket_name = module.deployment_s3.bucket_name
-  ssm_profile_name = module.ssm.ssm_profile_name
-  ssm_role_name    = module.ssm.ssm_role_name
-}
-
-module "ec2_bastion" {
-  source = "modules/ec2/bastion"
-  project_name         = var.project_name
-  vpc_id               = module.vpc.vpc_id
-  public_subnet_id     = module.vpc.public_subnet_id
-  ami_id               = var.ami_id
-  key_name             = var.project_name
-  ssm_profile_name     = module.ssm.ssm_profile_name
-}
-
-module "staticwebsite_cloudfront" {
-  source            = "modules/cloudfront/staticwebsite"
-  project_name      = var.project_name
-  domain_name       = var.domain_name
-  certificate_arn   = var.certificate_arn
-  api_origin_domain = module.ec2_api.public_dns
-  s3_domain_name    = module.app_s3.bucket_regional_domain_name
-  oac_id            = module.app_s3.oac_id
-  s3_bucket_id        = module.app_s3.bucket_name
-  s3_bucket_arn       = module.app_s3.bucket_arn
+module "route53" {
+  source                  = "./modules/route53"
+  project_name            = var.project_name
+  domain_name             = var.domain_name
+  api_cloudfront_domain  = module.api_cloudfront.cloudfront_domain
+  static_website_cloudfront_domain  = module.staticwebsite_cloudfront.cloudfront_domain
+  zone_id                 = var.hosted_zone_id
 }
 
 module "api_cloudfront" {
@@ -75,13 +49,15 @@ module "api_cloudfront" {
   s3_bucket_arn       = module.app_s3.bucket_arn
 }
 
-module "route53" {
-  source                  = "./modules/route53"
-  project_name            = var.project_name
-  domain_name             = var.domain_name
-  api_cloudfront_domain  = module.api_cloudfront.cloudfront_domain
-  static_website_cloudfront_domain  = module.staticwebsite_cloudfront.cloudfront_domain
-  zone_id                 = var.hosted_zone_id
+module "ec2_api" {
+  source       = "./modules/ec2/api"
+  project_name = var.project_name
+  vpc_id       = module.vpc.vpc_id
+  subnet_id    = module.vpc.public_subnet_id
+  ami_id       = var.ami_id
+  deployment_s3_bucket_name = module.deployment_s3.bucket_name
+  ssm_profile_name = module.iam_ssm.ssm_profile_name
+  ssm_role_name    = module.iam_ssm.ssm_role_name
 }
 
 module "rds" {
@@ -96,8 +72,32 @@ module "rds" {
   db_password        = var.db_password
 }
 
-module "github" {
-  source          = "./modules/github"
+module "ec2_bastion" {
+  source = "modules/ec2/bastion"
+  project_name         = var.project_name
+  vpc_id               = module.vpc.vpc_id
+  public_subnet_id     = module.vpc.public_subnet_id
+  ami_id               = var.ami_id
+  key_name             = var.project_name
+  ssm_profile_name     = module.iam_ssm.ssm_profile_name
+}
+
+module "staticwebsite_cloudfront" {
+  source            = "modules/cloudfront/staticwebsite"
+  project_name      = var.project_name
+  domain_name       = var.domain_name
+  certificate_arn   = var.certificate_arn
+  api_origin_domain = module.ec2_api.public_dns
+  s3_domain_name    = module.app_s3.bucket_regional_domain_name
+  oac_id            = module.app_s3.oac_id
+  s3_bucket_id        = module.app_s3.bucket_name
+  s3_bucket_arn       = module.app_s3.bucket_arn
+}
+
+module "app_s3" {
+  source          = "modules/s3/staticwebsite"
+  project_id      = var.project_id
   project_name    = var.project_name
-  github_repo     = "vitrstudio/${var.project_name}"
+  certificate_arn = var.certificate_arn
+  cloudfront_distribution_arn = module.staticwebsite_cloudfront.cloudfront_distribution_arn
 }
