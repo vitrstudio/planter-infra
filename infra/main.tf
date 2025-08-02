@@ -1,11 +1,11 @@
 module "iam_github" {
-  source          = "modules/iam/github"
+  source          = "./modules/iam/github"
   project_name    = var.project_name
   github_repo     = "vitrstudio/${var.project_name}"
 }
 
 module "iam_ssm" {
-  source = "modules/iam/ssm"
+  source = "./modules/iam/ssm"
   project_name = var.project_name
 }
 
@@ -38,7 +38,7 @@ module "route53" {
 }
 
 module "api_cloudfront" {
-  source            = "modules/cloudfront/api"
+  source            = "./modules/cloudfront/api"
   project_name      = var.project_name
   domain_name       = var.domain_name
   certificate_arn   = var.certificate_arn
@@ -73,7 +73,7 @@ module "rds" {
 }
 
 module "ec2_bastion" {
-  source = "modules/ec2/bastion"
+  source = "./modules/ec2/bastion"
   project_name         = var.project_name
   vpc_id               = module.vpc.vpc_id
   public_subnet_id     = module.vpc.public_subnet_id
@@ -83,7 +83,7 @@ module "ec2_bastion" {
 }
 
 module "staticwebsite_cloudfront" {
-  source            = "modules/cloudfront/staticwebsite"
+  source            = "./modules/cloudfront/staticwebsite"
   project_name      = var.project_name
   domain_name       = var.domain_name
   certificate_arn   = var.certificate_arn
@@ -95,7 +95,7 @@ module "staticwebsite_cloudfront" {
 }
 
 module "app_s3" {
-  source          = "modules/s3/staticwebsite"
+  source          = "./modules/s3/staticwebsite"
   project_id      = var.project_id
   project_name    = var.project_name
   certificate_arn = var.certificate_arn
