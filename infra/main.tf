@@ -33,7 +33,7 @@ module "route53" {
   project_name            = var.project_name
   domain_name             = var.domain_name
   api_cloudfront_domain  = module.api_cloudfront.cloudfront_domain
-  static_website_cloudfront_domain  = module.staticwebsite_cloudfront.cloudfront_domain
+  static_website_cloudfront_domain  = module.static_website_cloudfront.cloudfront_domain
   zone_id                 = var.hosted_zone_id
 }
 
@@ -82,12 +82,11 @@ module "ec2_bastion" {
   ssm_profile_name     = module.iam_ssm.ssm_profile_name
 }
 
-module "staticwebsite_cloudfront" {
+module "static_website_cloudfront" {
   source            = "./modules/cloudfront/staticwebsite"
   project_name      = var.project_name
   domain_name       = var.domain_name
   certificate_arn   = var.certificate_arn
-  api_origin_domain = module.ec2_api.public_dns
   s3_domain_name    = module.app_s3.bucket_regional_domain_name
   oac_id            = module.app_s3.oac_id
   s3_bucket_id        = module.app_s3.bucket_name
@@ -99,5 +98,5 @@ module "app_s3" {
   project_id      = var.project_id
   project_name    = var.project_name
   certificate_arn = var.certificate_arn
-  cloudfront_distribution_arn = module.staticwebsite_cloudfront.cloudfront_distribution_arn
+  cloudfront_distribution_arn = module.static_website_cloudfront.cloudfront_distribution_arn
 }
