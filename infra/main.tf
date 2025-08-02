@@ -22,7 +22,7 @@ module "app_s3" {
   project_id      = var.project_id
   project_name    = var.project_name
   certificate_arn = var.certificate_arn
-  cloudfront_distribution_arn = module.cloudfront.cloudfront_distribution_arn
+  cloudfront_distribution_arn = module.staticwebsite_cloudfront.cloudfront_distribution_arn
 }
 
 module "ssm" {
@@ -30,8 +30,8 @@ module "ssm" {
   project_name = var.project_name
 }
 
-module "ec2" {
-  source       = "./modules/ec2"
+module "ec2_api" {
+  source       = "./modules/ec2/api"
   project_name = var.project_name
   vpc_id       = module.vpc.vpc_id
   subnet_id    = module.vpc.public_subnet_id
@@ -41,8 +41,8 @@ module "ec2" {
   ssm_role_name    = module.ssm.ssm_role_name
 }
 
-module "bastion" {
-  source = "./modules/bastion"
+module "ec2_bastion" {
+  source = "modules/ec2/bastion"
   project_name         = var.project_name
   vpc_id               = module.vpc.vpc_id
   public_subnet_id     = module.vpc.public_subnet_id
@@ -51,12 +51,24 @@ module "bastion" {
   ssm_profile_name     = module.ssm.ssm_profile_name
 }
 
-module "cloudfront" {
-  source            = "./modules/cloudfront"
+module "staticwebsite_cloudfront" {
+  source            = "modules/cloudfront/staticwebsite"
   project_name      = var.project_name
   domain_name       = var.domain_name
   certificate_arn   = var.certificate_arn
-  api_origin_domain = module.ec2.public_dns
+  api_origin_domain = module.ec2_api.public_dns
+  s3_domain_name    = module.app_s3.bucket_regional_domain_name
+  oac_id            = module.app_s3.oac_id
+  s3_bucket_id        = module.app_s3.bucket_name
+  s3_bucket_arn       = module.app_s3.bucket_arn
+}
+
+module "api_cloudfront" {
+  source            = "modules/cloudfront/api"
+  project_name      = var.project_name
+  domain_name       = var.domain_name
+  certificate_arn   = var.certificate_arn
+  api_origin_domain = module.ec2_api.public_dns
   s3_domain_name    = module.app_s3.bucket_regional_domain_name
   oac_id            = module.app_s3.oac_id
   s3_bucket_id        = module.app_s3.bucket_name
@@ -67,7 +79,8 @@ module "route53" {
   source                  = "./modules/route53"
   project_name            = var.project_name
   domain_name             = var.domain_name
-  root_cloudfront_domain  = module.cloudfront.cloudfront_domain
+  api_cloudfront_domain  = module.api_cloudfront.cloudfront_domain
+  static_website_cloudfront_domain  = module.staticwebsite_cloudfront.cloudfront_domain
   zone_id                 = var.hosted_zone_id
 }
 

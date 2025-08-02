@@ -1,16 +1,9 @@
 resource "aws_cloudfront_distribution" "api_cdn" {
-  enabled             = true
-  is_ipv6_enabled     = true
-  default_root_object = "index.html"
+  enabled         = true
+  is_ipv6_enabled = true
 
   origin {
-    domain_name              = var.s3_domain_name
-    origin_id                = "s3-origin"
-    origin_access_control_id = var.oac_id
-  }
-
-  origin {
-    domain_name = var.api_origin_domain  # ec2-XX-XX.compute-1.amazonaws.com
+    domain_name = var.api_origin_domain
     origin_id   = "api-origin"
 
     custom_origin_config {
@@ -22,18 +15,6 @@ resource "aws_cloudfront_distribution" "api_cdn" {
   }
 
   default_cache_behavior {
-    target_origin_id       = "s3-origin"
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    compress               = true
-
-    cache_policy_id          = "b2884449-e4de-46a7-ac36-70bc7f1ddd6d" # CachingDisabled
-    origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # Simple (includes Host header)
-  }
-
-  ordered_cache_behavior {
-    path_pattern           = "/api/*"
     target_origin_id       = "api-origin"
     viewer_protocol_policy = "redirect-to-https"
 
@@ -58,14 +39,10 @@ resource "aws_cloudfront_distribution" "api_cdn" {
   }
 
   aliases = [
-    var.domain_name,
-    "www.${var.domain_name}",
     "api.${var.domain_name}"
   ]
 
   tags = {
     Name = "${var.project_name}-api-cdn"
   }
-
-  depends_on = [var.oac_id]
 }

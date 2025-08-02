@@ -13,7 +13,12 @@ variable "zone_id" {
   description = "Hosted zone id"
 }
 
-variable "root_cloudfront_domain" {
+variable "api_cloudfront_domain" {
   type        = string
-  description = "Cloudfront domain for root domain"
+  description = "Cloudfront domain for api subdomain"
+}
+
+variable "static_website_cloudfront_domain" {
+  type        = string
+  description = "Cloudfront domain for static website subdomain"
 }

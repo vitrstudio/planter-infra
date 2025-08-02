@@ -1,11 +1,11 @@
 output "ec2_public_ip" {
   description = "Public IP of the EC2 instance"
-  value       = module.ec2.public_ip
+  value       = module.ec2_api.public_ip
 }
 
 output "ec2_instance_id" {
   description = "Instance ID of the EC2 instance"
-  value       = module.ec2.instance_id
+  value       = module.ec2_api.instance_id
 }
 
 output "rds_endpoint" {
