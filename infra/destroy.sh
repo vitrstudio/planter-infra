@@ -1,10 +1,27 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
 set -euo pipefail
 
 echo "📦 Loading environment variables from .env"
 set -a
 source ../.env
 set +a
+
+echo "🔍 Fetching Hosted Zone ID from SSM..."
+HOSTED_ZONE_ID=$(aws ssm get-parameter \
+  --name "/${PROJECT_NAME}/hosted_zone_id" \
+  --region "${AWS_REGION}" \
+  --query "Parameter.Value" \
+  --output text)
+
+echo "🔍 Fetching Certificate ARN from SSM..."
+HOSTED_ZONE_ID=$(aws ssm get-parameter \
+  --name "/${PROJECT_NAME}/certificate_arn" \
+  --region "${AWS_REGION}" \
+  --query "Parameter.Value" \
+  --output text)
+
+echo "🌐 Hosted Zone ID: $HOSTED_ZONE_ID"
 
 echo "🚀 Initializing Terraform backend..."
 terraform init -reconfigure \
@@ -13,32 +30,28 @@ terraform init -reconfigure \
   -backend-config="region=${AWS_REGION}" \
   -backend-config="encrypt=true"
 
-echo
 echo "⚠️  WARNING: This will destroy ALL Terraform-managed resources in your project!"
 read -p "Are you sure you want to continue? (yes/no): " CONFIRM
 if [[ "$CONFIRM" != "yes" ]]; then
-  echo "❌  Aborted."
+  echo "❌ Aborted."
   exit 1
 fi
 
-echo
-echo "🔥  Destroying all resources…"
+echo "🔥 Destroying Terraform-managed infrastructure..."
 terraform destroy -auto-approve \
-  -var="project_name=${PROJECT_NAME}" \
-  -var="project_id=${PROJECT_ID}" \
-  -var="domain_name=${DOMAIN_NAME}" \
-  -var="region=${AWS_REGION}" \
-  -var="certificate_arn=${CERTIFICATE_ARN}" \
-  -var="hosted_zone_id=${HOSTED_ZONE_ID}" \
-  -var="ami_id=${AMI_ID}" \
-  -var="db_name=${DB_NAME}" \
-  -var="db_user=${DB_USERNAME}" \
-  -var="db_password=${DB_PASSWORD}"
+  -var "region=${AWS_DEFAULT_REGION}" \
+  -var "project_id=${PROJECT_ID}" \
+  -var "project_name=${PROJECT_NAME}" \
+  -var "domain_name=${DOMAIN_NAME}" \
+  -var "ami_id=${AMI_ID}" \
+  -var "db_name=${DB_NAME}" \
+  -var "db_user=${DB_USERNAME}" \
+  -var "db_password=${DB_PASSWORD}" \
+  -var "hosted_zone_id=${HOSTED_ZONE_ID}" \
+  -var "certificate_arn=${CERTIFICATE_ARN}"
 
-echo
-echo "🧹 Cleaning up SSM parameters…"
+echo "🧹 Cleaning up SSM parameters..."
 
-# List of SSM parameters to delete
 PARAMS=(
   "/${PROJECT_NAME}/db_password"
   "/${PROJECT_NAME}/deployment_bucket"
@@ -56,3 +69,5 @@ for PARAM in "${PARAMS[@]}"; do
   && echo "   ✅ Deleted ${PARAM}" \
   || echo "   ⚠️  Parameter not found or could not delete: ${PARAM}"
 done
+
+echo "✅ Destruction complete"
