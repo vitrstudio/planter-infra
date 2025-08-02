@@ -18,7 +18,7 @@ module "deployment_s3" {
 }
 
 module "app_s3" {
-  source          = "./modules/s3/application"
+  source          = "modules/s3/staticwebsite"
   project_id      = var.project_id
   project_name    = var.project_name
   certificate_arn = var.certificate_arn
