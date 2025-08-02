@@ -21,10 +21,6 @@ output "deployment_s3_bucket_name" {
   value = module.deployment_s3.bucket_name
 }
 
-output "cloudfront_distribution_url" {
-  value = module.cloudfront.cloudfront_domain
-}
-
 output "github_role_arn" {
   value = module.iam_github.github_role_arn
 }
