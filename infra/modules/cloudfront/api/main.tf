@@ -22,7 +22,7 @@ resource "aws_cloudfront_distribution" "api_cdn" {
     cached_methods   = ["GET", "HEAD"]
     compress         = true
 
-    cache_policy_id          = "b2884449-e4de-46a7-ac36-70bc7f1ddd6d" # CachingDisabled
+    cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CachingDisabled
     origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # AllViewer
   }
 
