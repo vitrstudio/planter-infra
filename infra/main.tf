@@ -43,10 +43,6 @@ module "api_cloudfront" {
   domain_name       = var.domain_name
   certificate_arn   = var.certificate_arn
   api_origin_domain = module.ec2_api.public_dns
-  s3_domain_name    = module.app_s3.bucket_regional_domain_name
-  oac_id            = module.app_s3.oac_id
-  s3_bucket_id        = module.app_s3.bucket_name
-  s3_bucket_arn       = module.app_s3.bucket_arn
 }
 
 module "ec2_api" {
