@@ -45,17 +45,3 @@ jobs:
       - name: Terraform apply
         run: terraform apply -auto-approve tfplan
         working-directory: infra
-
-      - name: Extract outputs
-        id: tfoutput
-        run: ../.github/scripts/terraform_extract_outputs.sh
-        working-directory: infra
-
-      - name: Store deployment values in SSM parameter store
-        run: |
-          .github/scripts/store_deployment_values.sh \
-            "${{ steps.tfoutput.outputs.ec2_instance_id }}" \
-            "${{ steps.tfoutput.outputs.ec2_public_ip }}" \
-            "${{ steps.tfoutput.outputs.rds_endpoint }}" \
-            "${{ steps.tfoutput.outputs.deployment_bucket }}" \
-            "${{ steps.tfoutput.outputs.github_role_arn }}"
