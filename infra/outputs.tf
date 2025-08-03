@@ -32,30 +32,30 @@ output "static_website_cloudfront_id" {
 
 output "static_website_cloudfront_id_ssm_parameter_arn" {
   description = "SSM Parameter ARN for CloudFront distribution ID"
-  value       = aws_ssm_parameter.static_website_cloudfront_id.arn
+  value       = module.ssm_parameters.static_website_cloudfront_id_parameter_arn
 }
 
 output "ec2_instance_id_ssm_parameter_arn" {
   description = "SSM Parameter ARN for EC2 instance ID"
-  value       = aws_ssm_parameter.ec2_instance_id.arn
+  value       = module.ssm_parameters.ec2_instance_id_parameter_arn
 }
 
 output "ec2_public_ip_ssm_parameter_arn" {
   description = "SSM Parameter ARN for EC2 public IP"
-  value       = aws_ssm_parameter.ec2_public_ip.arn
+  value       = module.ssm_parameters.ec2_public_ip_parameter_arn
 }
 
 output "rds_endpoint_ssm_parameter_arn" {
   description = "SSM Parameter ARN for RDS endpoint"
-  value       = aws_ssm_parameter.rds_endpoint.arn
+  value       = module.ssm_parameters.rds_endpoint_parameter_arn
 }
 
 output "deployment_bucket_ssm_parameter_arn" {
   description = "SSM Parameter ARN for deployment bucket"
-  value       = aws_ssm_parameter.deployment_bucket.arn
+  value       = module.ssm_parameters.deployment_bucket_parameter_arn
 }
 
 output "github_role_arn_ssm_parameter_arn" {
   description = "SSM Parameter ARN for GitHub role ARN"
-  value       = aws_ssm_parameter.github_role_arn.arn
+  value       = module.ssm_parameters.github_role_arn_parameter_arn
 }
