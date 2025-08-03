@@ -25,7 +25,7 @@ echo "🌐 Hosted Zone ID:      $HOSTED_ZONE_ID"
 echo "🔒 Certificate ARN:    $CERTIFICATE_ARN"
 
 echo "🚀 Re-initializing Terraform backend"
-terraform init -reconfigure -migrate-state \
+terraform init \
   -backend-config="bucket=vitr-terraform-states" \
   -backend-config="key=users/${GITHUB_USER}/${PROJECT_NAME}/infra/terraform.tfstate" \
   -backend-config="region=${AWS_REGION}" \

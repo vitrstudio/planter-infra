@@ -1,7 +1,12 @@
 #!/bin/bash
 set -e
 
-SECRET_NAME="/planter/db_password"
+if [ -z "$PROJECT_NAME" ]; then
+  echo "Error: PROJECT_NAME is not set"
+  exit 1
+fi
+
+SECRET_NAME="/${PROJECT_NAME}/db_password"
 
 PASSWORD=$(aws ssm get-parameter \
   --name "$SECRET_NAME" \
